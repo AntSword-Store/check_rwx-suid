@@ -13,7 +13,9 @@ module.exports = {
     message: {
         rwx_success: "Searching complete",
         clear_success:"Clearing complete",
-        search_success: "Searching complete"
+        search_success: "Searching complete",
+        create_asp_success: "Injection successful ! Please visit the detect.asp under current path via browser for further operation ",
+        create_aspx_success: "Injection successful ! Please visit the detect.aspx under current path via browser for further operation"
     },
     prompt: {
         current_user: "Please enter the username you want to search",
@@ -25,7 +27,8 @@ module.exports = {
     },
     error:{
         no_user:"Can\'t find the user",
-        other:"Timeout ! Please check out your timeout setting in the shell\'s setting platfrom , set a larger number and try again afterward"
+        other:"Timeout ! Please check out your timeout setting in the shell\'s setting platfrom , set a larger number and try again afterward",
+        unknown:"Error ! Please check if you have the write permission !"
     }
 
 };

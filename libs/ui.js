@@ -15,9 +15,10 @@ class UI {
       width: 666,
       height: 450,
     });
+    this.opt=opt;
     this.createMainLayout();
     return {
-      onGenerate: (func) => {
+      onCheck: (func) => {
         this.bindToolbarClickHandler(func);
       },
       onAbout: () => {}
@@ -99,63 +100,118 @@ class UI {
     this.toolbar.attachEvent('onClick', (id) => {
       switch(id){
       case "new":
-        layer.prompt({
-          value: "",
-          title: `<i class="fa fa-file-code-o"></i> ${LANG["prompt"]["current_user"]}`
-        },(value,i, e) => {
-          layer.close(i);
-          this.win.win.progressOn();
-          callback({
-            type:"username",
-            user: value,
-          }).then((path) => {
-            if(path){
-              this.path=path;
-              let griddata = [];
-              let griddata_1=[];
-              //解析得到的数据
-              path.text.split("ph4ntom_ph4ntom")[0].split('\n').map((item, i) => {
-                if (!item) { return };
-                item = antSword.noxss(item+"/");
-                griddata.push({
-                  id: i,
-                  data: item.split('\t')
-                });
-              });
-              path.text.split("ph4ntom_ph4ntom")[1].split('\n').map((item, i) => {
-                if (!item) { return };
-                item = antSword.noxss(item);
-                griddata_1.push({
-                  id: i,
-                  data: item.split('\t')
-                });
-              });
-              // 开始加载grid
-              this.grid.clearAll();
-              this.grid_1.clearAll();
-              this.grid.parse({
-                rows: griddata
-              }, "json");
-              this.grid_1.parse({
-                rows: griddata_1
-              }, "json");
-              this.win.win.progressOff();
-              toastr.success(LANG["message"]["rwx_success"], LANG_T['success']);
-            }
-          }).catch((err) => {
-                if(err=="Cannot find the user"){
-                  toastr.error(LANG['error']['no_user'], antSword['language']['toastr']['error']);
+        switch (this.opt.type) {
+          //当webshell类型为php时
+          case "php":
+            layer.
+              prompt({
+               value: "",
+               title: `<i class="fa fa-file-code-o"></i> ${LANG["prompt"]["current_user"]}`
+            }, (value, i, e) => {
+              layer.close(i);
+              this.win.win.progressOn();
+              callback({
+                type: "username",
+                user: value,
+                file_type: this.opt.type,
+              }).then((path) => {
+                if (path) {
+                  this.path = path;
+                  let griddata = [];
+                  let griddata_1 = [];
+                  //解析得到的数据
+                  path.text.split("ph4ntom_ph4ntom")[0].split('\n').map((item, i) => {
+                    if (!item) {
+                      return
+                    }
+                    ;
+                    item = antSword.noxss(item + "/");
+                    griddata.push({
+                      id: i,
+                      data: item.split('\t')
+                    });
+                  });
+                  path.text.split("ph4ntom_ph4ntom")[1].split('\n').map((item, i) => {
+                    if (!item) {
+                      return
+                    }
+                    ;
+                    item = antSword.noxss(item);
+                    griddata_1.push({
+                      id: i,
+                      data: item.split('\t')
+                    });
+                  });
+                  // 开始加载grid
+                  this.grid.clearAll();
+                  this.grid_1.clearAll();
+                  this.grid.parse({
+                    rows: griddata
+                  }, "json");
+                  this.grid_1.parse({
+                    rows: griddata_1
+                  }, "json");
+                  this.win.win.progressOff();
+                  toastr.success(LANG["message"]["rwx_success"], LANG_T['success']);
                 }
-                else {
+              }).catch((err) => {
+                if (err == "Cannot find the user") {
+                  toastr.error(LANG['error']['no_user'], antSword['language']['toastr']['error']);
+                } else {
                   toastr.error(LANG['error']['other'], antSword['language']['toastr']['error']);
                 }
-                this.win.win.progressOff();})
-        });
-        break
+                this.win.win.progressOff();
+              })
+            });
+            break;
+         //当webshell为asp时，无需输入用户名
+          case "asp":
+            layer.
+            confirm('当前shell为asp类型，是否确认写入检测脚本至目标服务器？',{
+              btn: ['确定','取消'],
+              title:"提示"
+            }, (i, e) => {
+              layer.close(i);
+              this.win.win.progressOn();
+              callback({
+                type: "username",
+                file_type: this.opt.type,
+              }).then((path) => {
+                toastr.success(LANG["message"]["create_asp_success"], LANG_T['success']);
+                this.win.win.progressOff();
+              }).catch((err) => {
+                  toastr.error(LANG['error']['unknown'], antSword['language']['toastr']['error']);
+                this.win.win.progressOff();
+              })
+            });
+            break;
+
+          case "aspx":
+            layer.
+            confirm('当前shell为aspx类型，是否确认写入检测脚本至目标服务器？',{
+              btn: ['确定','取消'],
+              title:"提示"
+            }, (i, e) => {
+              layer.close(i);
+              this.win.win.progressOn();
+              callback({
+                type: "username",
+                file_type: this.opt.type,
+              }).then((path) => {
+                toastr.success(LANG["message"]["create_aspx_success"], LANG_T['success']);
+                this.win.win.progressOff();
+              }).catch((err) => {
+                toastr.error(LANG['error']['unknown'], antSword['language']['toastr']['error']);
+                this.win.win.progressOff();
+              })
+            });
+            break;
+        }
+        break;
 
         //根据关键字查找rwx目录
-        case "search_rwx" :
-          layer.prompt({
+          case "search_rwx" :
+            layer.prompt({
             value: "",
             title: `<i class="fa fa-file-code-o"></i> ${LANG["prompt"]["search_word"]}`
           },(value,i, e) => {
@@ -171,8 +227,8 @@ class UI {
           break;
 
           //根据关键字查找suid提权文件
-      case "search_suid" :
-        layer.prompt({
+        case "search_suid" :
+          layer.prompt({
           value: "",
           title: `<i class="fa fa-file-code-o"></i> ${LANG["prompt"]["search_word"]}`
         },(value,i, e) => {
@@ -184,15 +240,15 @@ class UI {
             this.grid_1.selectCell(cell_found[i]-1,0,true,true);
           }
           toastr.success(LANG["message"]["search_success"], LANG_T['success']);
-        })
-        break;
+         })
+         break;
 
         //清空grid
-      case "clear":
-        this.grid.clearAll();
-        this.grid_1.clearAll();
-        toastr.success(LANG["message"]["clear_success"], LANG_T['success']);
-        break;
+       case "clear":
+         this.grid.clearAll();
+         this.grid_1.clearAll();
+         toastr.success(LANG["message"]["clear_success"], LANG_T['success']);
+         break;
       }
     });
   }
